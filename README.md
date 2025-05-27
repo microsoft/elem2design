@@ -1,14 +1,195 @@
-# Project
+# From Elements to Design: A Layered Approach for Automatic Graphic Design Composition
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+[[Paper](https://arxiv.org/abs/2412.19712)]
+[[Video](https://www.youtube.com/watch?v=omXtLEiwEPU)]
+[[Hugging Face](https://huggingface.co/microsoft/elem2design)]
+[[Demo](app/app.py)]
 
-As the maintainer of this project, please make a few updates:
+In this work, we investigate automatic design composition from multimodal graphic elements.
+We propose [LaDeCo](https://arxiv.org/pdf/2412.19712), which introduces the layered design principle to accomplish this challenging task through two steps: layer planning and layered design composition.
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+![](teaser.png)
+
+# Requirements
+
+1. Clone this repository
+```bash
+git clone https://github.com/microsoft/elem2design.git
+cd elem2design
+```
+
+2. Install
+```bash
+conda create -n e2d python=3.10 -y
+conda activate e2d
+pip install --upgrade pip
+pip install -e .
+pip install -e thirdparty/opencole
+pip install -e dataset/src
+```
+
+3. Install additional packages for training cases
+```bash
+pip install -e ".[train]"
+pip install flash-attn --no-build-isolation
+```
+
+# How to Use
+
+## Layer Planning
+
+Please check this [folder](dataset/labeling) for the `layer planning` code, or you can directly use the predicted labels [here](dataset/dataset/role/crello_role.pkl).
+
+Index-to-layer mapping:
+```python
+{
+    0: "Background", 
+    1: "Underlay", 
+    2: "Logo/Image", 
+    3: "Text", 
+    4: "Embellishment"
+}
+```
+
+## Rendering
+
+We render an image for each element, which is useful during inference.
+Meanwhile, we also render the intermediate designs (denoted as `layer_{index}.png`) and use them for end-to-end training.
+
+Please run the following script to get these assets:
+```bash
+python dataset/src/crello/render.py
+```
+
+## Dataset Preparation
+
+After rendering, we move to the next step to construct the dataset according to layered design principle. 
+Each sample has 5 rounds of dialogue, where the model progressively predicts element attributes from the background layer to the embellishment layer.
+
+```bash
+python dataset/src/crello/create_dataset.py --tag ours
+```
+
+## Model
+
+We have a model available on [Hugging Face](https://huggingface.co/microsoft/elem2design).
+Please download it for inference.
+
+This model is trained on the public [Crello dataset](https://huggingface.co/datasets/cyberagent/crello).
+We find that using a dataset approximately five times larger leads to significantly improved performance. For a detailed evaluation, please refer to Table 2 in our [paper](https://arxiv.org/pdf/2412.19712). Unfortunately, we are unable to release this model as it was trained on a private dataset.
+
+## Inference
+
+Now it is time to do inference using the prepared data and model:
+```bash
+python llava/infer/infer.py \
+    --model_name_or_path /path/to/model/checkpoint-xxxx \
+    --data_path /path/to/data/test.json \
+    --image_folder /path/to/crello_images \
+    --output_dir /path/to/output_dir \
+    --start_layer_index 0 \ 
+    --end_layer_index 4
+```
+
+# Demo
+
+Besides command-line inference, we also provide a demo interface that allows users to interact with the model via a web-based UI. This interface makes it more user-friendly and better suited for running inference on custom datasets.
+
+To launch the web UI, run the following command:
+
+```bash
+python app/app.py --model_name_or_path /path/to/model/checkpoint-xxxx
+```
+
+# Evaluation
+
+We compute the LVM scores and geometry-related metrics for the generated designs:
+
+- [LVM scores](llava/metrics/llava_ov.py)
+```bash
+python llava/metrics/llava_ov.py -i /path/to/output_dir
+```
+
+- [Geometry-related metrics](llava/metrics/layout.py)
+```bash
+python llava/metrics/layout.py --pred /path/to/output_dir/pred.jsonl
+```
+
+# Training
+
+We fine-tune LLMs using the `crello` training set for layered design composition.
+For your own dataset, please prepare the dataset in the given format and run:
+```bash
+bash scripts/finetune_lora.sh \
+    1 \
+    meta-llama/Llama-3.1-8B \
+    /path/to/dataset/train.json \
+    /path/to/image/base \
+    /path/to/output_dir \
+    50 \
+    2 \
+    16 \
+    250 \
+    2e-4 \
+    2e-4 \
+    cls_pooling \
+    Llama-3.1-8B_lora_ours \
+    32 \
+    64 \
+    4
+```
+
+For example, the specific script in our setting is:
+```bash
+bash scripts/finetune_lora.sh \
+    1 \
+    meta-llama/Llama-3.1-8B \
+    dataset/dataset/json/ours/train.json \
+    dataset/dataset/crello_images \
+    output/Llama-3.1-8B_lora_ours \
+    50 \
+    2 \
+    16 \
+    250 \
+    2e-4 \
+    2e-4 \
+    cls_pooling \
+    Llama-3.1-8B_lora_ours \
+    32 \
+    64 \
+    4
+```
+
+Remember to login to [Hugging Face](https://huggingface.co/meta-llama/Llama-3.1-8B) using the Llama access token:
+```bash
+huggingface-cli login --token $TOKEN
+```
+
+The following is a list of supported LLMs:
+
+- [liuhaotian/llava-v1.5-7b](https://huggingface.co/liuhaotian/llava-v1.5-7b)
+- [liuhaotian/llava-v1.6-vicuna-7b](https://huggingface.co/liuhaotian/llava-v1.6-vicuna-7b)
+- [meta-llama/Meta-Llama-3-8B](https://huggingface.co/meta-llama/Meta-Llama-3-8B)
+- [meta-llama/Meta-Llama-3-8B-Instruct](https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct)
+- [meta-llama/Llama-3.1-8B](https://huggingface.co/meta-llama/Llama-3.1-8B)
+- [meta-llama/Llama-3.1-8B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct)
+- [mistralai/Mistral-7B-v0.3](https://huggingface.co/mistralai/Mistral-7B-v0.3)
+
+# BibTeX
+
+```
+@InProceedings{lin2024elements,
+  title={From Elements to Design: A Layered Approach for Automatic Graphic Design Composition},
+  author={Lin, Jiawei and Sun, Shizhao and Huang, Danqing and Liu, Ting and Li, Ji and Bian, Jiang},
+  booktitle={CVPR},
+  year={2025}
+}
+```
+
+## Acknowledgments
+
+We would like to express our gratitude to [CanvasVAE](https://huggingface.co/datasets/cyberagent/crello) for providing the dataset, [OpenCole](https://github.com/CyberAgentAILab/OpenCOLE) for the rendering code, and [LLaVA](https://github.com/haotian-liu/LLaVA) for the codebase. 
+We deeply appreciate all the incredible work that made this project possible.
 
 ## Contributing
 

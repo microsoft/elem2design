@@ -1,0 +1,42 @@
+attribute_order:
+  - index
+  - left
+  - top
+  - width
+  - height
+  - angle
+  - font
+  - font_size
+  - color
+  - text_align
+  - capitalize
+  - letter_spacing
+  - line_height
+  - text
+numerical_attributes:
+  left:
+    quantization: null
+  top:
+    quantization: null
+  width:
+    quantization: null
+  height:
+    quantization: null
+  color:
+    quantization: null
+    shape: [3, ]
+  font_size:
+    quantization: null
+  angle:
+    quantization: null
+  letter_spacing:
+    quantization: null
+  line_height:
+    quantization: null
+categorical_attributes:
+  - font
+  - text_align
+  - capitalize
+string_attributes:
+  - index
+  - text

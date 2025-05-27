@@ -1,0 +1,9 @@
+context:
+  format: default
+  template: index-content
+  image_token: <image>
+manager:
+  schema_name: default
+  weight_path: null
+max_num: 25
+seed: 0

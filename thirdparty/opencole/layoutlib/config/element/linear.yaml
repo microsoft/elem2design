@@ -1,0 +1,57 @@
+attribute_order:
+  - index
+  - left
+  - top
+  - width
+  - height
+  - angle
+  - font
+  - font_size
+  - color
+  - text_align
+  - capitalize
+  - letter_spacing
+  - line_height
+  - text
+numerical_attributes:
+  left:
+    quantization: linear
+    num_bin: 128
+  top:
+    quantization: linear
+    num_bin: 128
+  width:
+    quantization: linear
+    num_bin: 128
+  height:
+    quantization: linear
+    num_bin: 128
+  color:
+    quantization: linear
+    num_bin: 128
+    shape: [3, ]
+    vmin: 0.0
+    vmax: 255.0
+  font_size:
+    quantization: linear
+    num_bin: 128
+  angle:
+    quantization: linear
+    num_bin: 128
+  letter_spacing:
+    quantization: linear
+    num_bin: 128
+    vmin: -0.005
+    vmax: 0.025
+  line_height:
+    quantization: linear
+    num_bin: 128
+    vmin: 0.0
+    vmax: 5.0
+categorical_attributes:
+  - font
+  - text_align
+  - capitalize
+string_attributes:
+  - text
+  - index
