@@ -16,7 +16,7 @@ dependencies = [
     "torch==2.7.0", "torchvision==0.16.2",
     "transformers==4.44.2", "tokenizers==0.19.1", "sentencepiece==0.1.99", "shortuuid",
     "accelerate==0.34.2", "peft", "bitsandbytes",
-    "pydantic", "markdown2[all]", "numpy==1.26.4", "scikit-learn==1.2.2",
+    "pydantic", "markdown2[all]", "numpy==1.26.4", "scikit-learn==1.5.1",
     "requests", "httpx==0.24.0", "uvicorn", "fastapi",
     "einops==0.6.1", "einops-exts==0.0.4", "timm==0.6.13",
 ]
