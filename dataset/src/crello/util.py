@@ -139,6 +139,10 @@ def render(prediction, image_base, render_image, render_text, canvas_width, canv
     layout = []
     elements = re.findall(r"{.*?}", prediction, re.DOTALL)
     for element in elements:
+        if len(element) > 2000:
+            raise ValueError(f"Element too long...")
+        
+    for element in elements:
         if element != "{}":
             try:
                 element = element_parser.parse(element)
