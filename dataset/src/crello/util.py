@@ -137,10 +137,10 @@ element_parser = PydanticOutputParser(  # type: ignore
 
 def render(prediction, image_base, render_image, render_text, canvas_width, canvas_height, text_from="GT", auto_newline=False):
     layout = []
+    if len(prediction) > 8000:
+        raise ValueError("Prediction string is too long.")
+    
     elements = re.findall(r"{.*?}", prediction, re.DOTALL)
-    for element in elements:
-        if len(element) > 2000:
-            raise ValueError(f"Element too long...")
         
     for element in elements:
         if element != "{}":
