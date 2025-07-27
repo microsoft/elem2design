@@ -1,12 +1,10 @@
 import gradio as gr
-import time
-import random
-from llava.infer.infer import BASE_MODEL, white_rgb_convert, expand2square
+import json
+from llava.infer.infer import white_rgb_convert, expand2square
 import argparse
-from llava.mm_utils import get_model_name_from_path, tokenizer_image_token
+from llava.mm_utils import tokenizer_image_token
 from llava.model import *
 from llava.model.builder import load_pretrained_model
-import re
 from PIL import Image
 import os
 import torch
@@ -431,15 +429,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_name_or_path", type=str)
     args = parser.parse_args()
-    model_name = get_model_name_from_path(args.model_name_or_path)
     model_path = args.model_name_or_path
-    if "lora" not in model_path:
-        model_base = None
-    else:
-        model_base = re.findall("\/([^\/]+)_lora", model_path)[0]
-        model_base = BASE_MODEL[model_base]
-
-    tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, model_base, model_name)
+    with open(os.path.join(model_path, "adapter_config.json"), "r") as f:
+        model_base = json.load(f)["base_model_name_or_path"]
+    tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, model_base)
     tokenizer.pad_token_id = tokenizer.unk_token_id or 0
     model = model.to("cuda")
 

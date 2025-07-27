@@ -82,7 +82,7 @@ We find that using a dataset approximately five times larger leads to significan
 
 Now it is time to do inference using the prepared data and model:
 ```bash
-python llava/infer/infer.py \
+CUDA_VISIBLE_DEVICES=0 python llava/infer/infer.py \
     --model_name_or_path /path/to/model/checkpoint-xxxx \
     --data_path /path/to/data/test.json \
     --image_folder /path/to/crello_images \
@@ -98,7 +98,7 @@ Besides command-line inference, we also provide a demo interface that allows use
 To launch the web UI, run the following command:
 
 ```bash
-python app/app.py --model_name_or_path /path/to/model/checkpoint-xxxx
+CUDA_VISIBLE_DEVICES=0 python app/app.py --model_name_or_path /path/to/model/checkpoint-xxxx
 ```
 
 # Evaluation

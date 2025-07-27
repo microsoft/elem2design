@@ -32,14 +32,6 @@ from llava.mm_utils import get_model_name_from_path, tokenizer_image_token
 from llava.model import *
 from llava.model.builder import load_pretrained_model
 
-BASE_MODEL = {
-    "Llama-3.1-8B": "meta-llama/Llama-3.1-8B",
-    "llama3-llava-next-8b": "lmms-lab/llama3-llava-next-8b",
-    "Llama-3.1-8B-Instruct": "meta-llama/Llama-3.1-8B-Instruct",
-    "llava-v1.5-7b": "liuhaotian/llava-v1.5-7b",
-    "Mistral-7B-v0.3": "mistralai/Mistral-7B-v0.3",
-}
-
 
 def white_rgb_convert(img: Image):
     img = img.convert("RGBA")
@@ -158,17 +150,11 @@ class LazySupervisedDataset(Dataset):
 
 def run_eval():
     parser = transformers.HfArgumentParser(EvalArguments)
-    (eval_args,) = parser.parse_args_into_dataclasses()
-    model_name = get_model_name_from_path(eval_args.model_name_or_path)
+    eval_args, = parser.parse_args_into_dataclasses()
     model_path = eval_args.model_name_or_path
-    if "lora" not in model_path:
-        model_base = None
-    else:
-        import re
-
-        model_base = re.findall("\/([^\/]+)_lora", model_path)[0]
-        model_base = BASE_MODEL[model_base]
-    tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, model_base, model_name)
+    with open(os.path.join(model_path, "adapter_config.json"), "r") as f:
+        model_base = json.load(f)["base_model_name_or_path"]
+    tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, model_base)
     tokenizer.pad_token_id = tokenizer.unk_token_id or 0
     eval_args.image_processor = image_processor
 
