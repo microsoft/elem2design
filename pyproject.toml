@@ -22,7 +22,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-train = ["deepspeed==0.12.6", "ninja", "wandb==0.18.1"]
+train = ["deepspeed==0.14.4", "ninja", "wandb==0.18.1"]
 build = ["build", "twine"]
 
 [tool.setuptools.packages.find]
