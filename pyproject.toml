@@ -14,15 +14,15 @@ classifiers = [
 ]
 dependencies = [
     "torch==2.7.0", "torchvision==0.22.0",
-    "transformers==4.50.0", "tokenizers==0.21.0", "sentencepiece==0.1.99", "shortuuid",
+    "transformers==4.44.2", "tokenizers==0.19.1", "sentencepiece==0.1.99", "shortuuid",
     "accelerate==0.34.2", "peft", "bitsandbytes",
     "pydantic", "markdown2[all]", "numpy==1.26.4", "scikit-learn==1.5.1",
-    "requests", "httpx==0.24.0", "uvicorn", "fastapi",
-    "einops==0.6.1", "einops-exts==0.0.4", "timm==0.6.13",
+    "requests", "httpx", "uvicorn", "fastapi",
+    "einops==0.6.1", "einops-exts==0.0.4", "timm==0.6.13", "datasets==3.6.0", "gradio"
 ]
 
 [project.optional-dependencies]
-train = ["deepspeed==0.12.6", "ninja", "wandb==0.18.1"]
+train = ["deepspeed==0.14.4", "ninja", "wandb==0.18.1"]
 build = ["build", "twine"]
 
 [tool.setuptools.packages.find]
